@@ -1,13 +1,13 @@
-# GetOpt::Long.pm -- Universal options parsing
+# Getopt::Long.pm -- Universal options parsing
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pm,v 2.58 2002-06-20 09:32:09+02 jv Exp $
+# RCS Status      : $Id: GetoptLong.pm,v 2.60 2002-06-29 17:19:25+02 jv Exp $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Thu Jun 20 07:48:05 2002
-# Update Count    : 1083
+# Last Modified On: Sat Jun 29 17:19:25 2002
+# Update Count    : 1095
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.32;
+$VERSION        =  2.3201;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.32";
+$VERSION_STRING = "2.32_01";
 
 use Exporter;
 
@@ -248,8 +248,8 @@ sub GetOptions {
 
     $error = '';
 
-    print STDERR ("GetOpt::Long $Getopt::Long::VERSION (",
-		  '$Revision: 2.58 $', ") ",
+    print STDERR ("Getopt::Long $Getopt::Long::VERSION (",
+		  '$Revision: 2.60 $', ") ",
 		  "called from package \"$pkg\".",
 		  "\n  ",
 		  "ARGV: (@ARGV)",
@@ -904,6 +904,8 @@ sub FindOption ($$$$) {
 
     #### Check if the argument is valid for this option ####
 
+    my $key_valid = $ctl->[CTL_DEST] == CTL_DEST_HASH ? "[^=]+=" : "";
+
     if ( $type eq 's' ) {	# string
 	# A mandatory string takes anything.
 	return (1, $opt, $ctl, $arg, $key) if $mand;
@@ -931,9 +933,10 @@ sub FindOption ($$$$) {
 	  $type eq 'o' ? "[-+]?[1-9][0-9]*|0x[0-9a-f]+|0b[01]+|0[0-7]*"
 	    : "[-+]?[0-9]+";
 
-	if ( $bundling && defined $rest && $rest =~ /^($o_valid)(.*)$/si ) {
-	    $arg = $1;
-	    $rest = $2;
+	if ( $bundling && defined $rest
+	     && $rest =~ /^($key_valid)($o_valid)(.*)$/si ) {
+	    ($key, $arg, $rest) = ($1, $2, $+);
+	    chop($key) if $key;
 	    $arg = ($type eq 'o' && $arg =~ /^0/) ? oct($arg) : 0+$arg;
 	    unshift (@ARGV, $starter.$rest) if defined $rest && $rest ne '';
 	}
@@ -976,9 +979,9 @@ sub FindOption ($$$$) {
 	# and at least one digit following the point and 'e'.
 	# [-]NN[.NN][eNN]
 	if ( $bundling && defined $rest &&
-	     $rest =~ /^([-+]?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?)(.*)$/s ) {
-	    $arg = $1;
-	    $rest = $+;
+	     $rest =~ /^($key_valid)([-+]?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?)(.*)$/s ) {
+	    ($key, $arg, $rest) = ($1, $2, $+);
+	    chop($key) if $key;
 	    unshift (@ARGV, $starter.$rest) if defined $rest && $rest ne '';
 	}
 	elsif ( $arg !~ /^[-+]?[0-9.]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$/ ) {
@@ -1004,7 +1007,7 @@ sub FindOption ($$$$) {
 	}
     }
     else {
-	die("GetOpt::Long internal error (Can't happen)\n");
+	die("Getopt::Long internal error (Can't happen)\n");
     }
     return (1, $opt, $ctl, $arg, $key);
 }
@@ -1538,7 +1541,7 @@ messages. For example:
 
     =head1 NAME
 
-    sample - Using GetOpt::Long and Pod::Usage
+    sample - Using Getopt::Long and Pod::Usage
 
     =head1 SYNOPSIS
 
