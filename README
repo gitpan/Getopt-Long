@@ -162,8 +162,15 @@ to reverse the effect:
   - prefix_pattern
 
 	A Perl pattern that identifies the strings that introduce
-	options. Default is (--|-|\+) unless environment variable
-	POSIXLY_CORRECT has been set, in which case it is (--|-).
+	options. Default is --|-|\+ unless environment variable
+	POSIXLY_CORRECT has been set, in which case it is --|-.
+
+  - long_prefix_pattern
+
+        A perl pattern that is used to identify which prefixes
+        should be treated as long style. Any prefixes that don't
+        match this pattern will have short option semantics.
+        Defaults to --.
 
   - debug
 
