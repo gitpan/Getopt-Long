@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.11 2000-05-26 08:08:17+02 jv Exp $
+# $Id: Makefile.PL,v 1.12 2001-01-06 16:53:20+01 jv Exp $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -27,10 +27,10 @@ EOD
     "";
 }
 
-if ( $Getopt::Long::VERSION =~ /_/ ) {
+if ( $Getopt::Long::VERSION_STRING =~ /_/ ) {
     print STDERR <<EOD;
 
-WARNING: This is Getopt::Long version $Getopt::Long::VERSION.
+WARNING: This is Getopt::Long version $Getopt::Long::VERSION_STRING.
 The underscore in the version number indicates that this is
 an intermediate, preview or beta release.
 Please keep checking CPAN for the official release.
@@ -40,7 +40,7 @@ EOD
 
 WriteMakefile(
 	NAME      => "Getopt::Long",
-	VERSION   => $Getopt::Long::VERSION,
+	VERSION   => $Getopt::Long::VERSION_STRING,
 
 	( $] < 5.005 ) ? () : (
 	AUTHOR => 'Johan Vromans (jvromans@squirrel.nl)',
