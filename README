@@ -1,5 +1,3 @@
->>>>>>>>>> WARNING: THIS IS A PRERELEASE. CAVEAT EMPTOR. <<<<<<<<<<
-
 Module Getopt::Long - extended processing of command line options
 =================================================================
 
@@ -102,6 +100,10 @@ behavior. It can be called with one or more names of options:
   - getopt_compat   
 
 	Allow '+' to start options.
+
+  - gnu_compat
+
+	Compatibility with GNU getopt_long().
 
   - permute
   - require_order           
