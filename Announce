@@ -1,0 +1,33 @@
+Version 2.20 of module Getopt::Long is now available via CPAN. It
+should soon appear in directory authors/Johan_Vromans as file
+Getopt-Long-2.20.tar.gz. It will be standard part of Perl 5.005 or later.
+
+Module Getopt::Long implements an extended getopt function called
+GetOptions(). This function implements the POSIX standard for command
+line options, with GNU extensions, while still capable of handling
+the traditional one-letter options (including option bundling).
+
+The README document is attached to this message.
+
+The best way to download from CPAN is to use a Web browser and point
+it to http://www.perl.com/CPAN/ (include the final slash!). It will
+automagically be redirected to a CPAN site in your neighborhood. 
+URL: http://www.perl.com/CPAN/authors/Johan_Vromans
+
+Changes in version 2.20
+-----------------------
+
+* Prevent the magic argument "<>" from being interpreted as option
+  starter characters if it is the first argument passed.
+  To use the characters "<>" as option starters, pass "><" instead.
+
+* Changed license: Getopt::Long may now also be used under the Perl
+  Artistic License.
+
+* Changed the file name of the distribution kit from "GetoptLong..."
+  to "Getopt-Long-..." to match the standards.
+
+Previous released version was 2.19.
+
+---- README ----
+
