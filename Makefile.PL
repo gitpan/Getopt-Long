@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.13 2001-01-31 10:27:15+01 jv Exp $
+# $Id: Makefile.PL,v 1.14 2001-09-22 17:39:17+02 jv Exp $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -7,6 +7,7 @@ require "./lib/Getopt/Long.pm";
 my $version = $Getopt::Long::VERSION_STRING || $Getopt::Long::VERSION;
 
 sub MY::postamble {
+    my $ret = "";
     my $mandir = $Config{installman3dir};
     my $obsolete = "$mandir/Getopt::GetoptLong.3";
     if ( -e $obsolete ) {
@@ -19,13 +20,32 @@ install this version.
 EOD
 	my $ans = prompt ("Shall I add the remove instructions?");
 	if ( $ans =~ /^y/i ) {
-	    return <<EOD;
+	    $ret .= <<EOD;
 install ::
 	\$(RM_F) "$obsolete"
+
 EOD
 	}
     }
-    "";
+    my $libdir = $Config{installprivlib};
+    my $obsolete = "$libdir/auto/Getopt/Long";
+    if ( -d $obsolete ) {
+	print STDERR (<<EOD);
+
+I found left-over files from a previous version of Getopt::Long.
+These should be removed.
+I can add instructions to the Makefile to remove them when you
+install this version.
+EOD
+	my $ans = prompt ("Shall I add the remove instructions?");
+	if ( $ans =~ /^y/i ) {
+	    $ret .= <<EOD;
+install ::
+	\$(RM_RF) "$libdir/auto/Getopt/Long"
+EOD
+	}
+    }
+    $ret;
 }
 
 if ( $version =~ /_/ ) {

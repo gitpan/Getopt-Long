@@ -2,12 +2,12 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pl,v 2.28 2001-08-05 18:41:09+02 jv Exp $
+# RCS Status      : $Id: GetoptLong.pm,v 2.36 2001-09-22 17:39:03+02 jv Exp $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Sun Aug  5 18:41:06 2001
-# Update Count    : 751
+# Last Modified On: Sat Sep 22 17:06:58 2001
+# Update Count    : 762
 # Status          : Released
 
 ################ Copyright ################
@@ -34,13 +34,13 @@ use 5.004;
 
 use strict;
 
-use vars qw($VERSION $VERSION_STRING);
-$VERSION        =  2.26;
+use vars qw($VERSION);
+$VERSION        =  2.26_01;
 # For testing versions only.
-#$VERSION_STRING = "2.25_13";
+use vars qw($VERSION_STRING);
+$VERSION_STRING = "2.26_01";
 
 use Exporter;
-use AutoLoader qw(AUTOLOAD);
 
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
@@ -196,7 +196,14 @@ sub getoptions {
     # Call main routine.
     my $ret = 0;
     $Getopt::Long::caller = $self->{caller_pkg};
-    eval { $ret = Getopt::Long::GetOptions (@_); };
+
+    eval {
+	# Locally set exception handler to default, otherwise it will
+	# be called implicitly here, and again explicitly when we try
+	# to deliver the messages.
+	local ($SIG{__DIE__}) = '__DEFAULT__';
+	$ret = Getopt::Long::GetOptions (@_);
+    };
 
     # Restore saved settings.
     Getopt::Long::Configure ($save);
@@ -207,26 +214,6 @@ sub getoptions {
 }
 
 package Getopt::Long;
-
-################ Package return ################
-
-1;
-
-__END__
-
-################ AutoLoading subroutines ################
-
-package Getopt::Long;
-
-use strict;
-
-# RCS Status      : $Id: GetoptLongAl.pl,v 2.34 2001-08-05 18:42:45+02 jv Exp $
-# Author          : Johan Vromans
-# Created On      : Fri Mar 27 11:50:30 1998
-# Last Modified By: Johan Vromans
-# Last Modified On: Sat Aug  4 17:32:13 2001
-# Update Count    : 128
-# Status          : Released
 
 sub GetOptions {
 
@@ -246,10 +233,9 @@ sub GetOptions {
 
     $error = '';
 
-    print STDERR ("GetOpt::Long $Getopt::Long::VERSION ",
-		  "called from package \"$pkg\".",
-		  "\n  ",
-		  'GetOptionsAl $Revision: 2.34 $ ',
+    print STDERR ("GetOpt::Long $Getopt::Long::VERSION (",
+		  '$Revision: 2.36 $', ")",
+		  "Called from package \"$pkg\".",
 		  "\n  ",
 		  "ARGV: (@ARGV)",
 		  "\n  ",
@@ -543,11 +529,16 @@ sub GetOptions {
 			$linkage{$opt}->{$key} = $arg;
 		    }
 		    elsif ( ref($linkage{$opt}) eq 'CODE' ) {
-			print STDERR ("=> &L{$opt}(\"$opt\", \"$arg\")\n")
+			print STDERR ("=> &L{$opt}(\"$opt\"",
+				      $dsttype eq '%' ? ", \"$key\"" : "",
+				      ", \"$arg\")\n")
 			    if $debug;
 			local ($@);
 			eval {
-			    &{$linkage{$opt}}($opt, $arg);
+			    local $SIG{__DIE__}  = '__DEFAULT__';
+			    &{$linkage{$opt}}($opt,
+					      $dsttype eq '%' ? ($key) : (),
+					      $arg);
 			};
 			print STDERR ("=> die($@)\n") if $debug && $@ ne '';
 			if ( $@ =~ /^!/ ) {
@@ -616,7 +607,10 @@ sub GetOptions {
 	    my $cb;
 	    if ( (defined ($cb = $linkage{'<>'})) ) {
 		local ($@);
+		print STDERR ("=> &L{$tryopt}(\"$tryopt\")\n")
+		  if $debug;
 		eval {
+		    local $SIG{__DIE__}  = '__DEFAULT__';
 		    &$cb ($tryopt);
 		};
 		print STDERR ("=> die($@)\n") if $debug && $@ ne '';
@@ -978,7 +972,7 @@ sub Configure (@) {
 		$gnu_compat = 1;
 		$bundling = 1;
 		$getopt_compat = 0;
-		$permute = 1;
+		$order = $PERMUTE;
 	    }
 	}
 	elsif ( $try eq 'gnu_compat' ) {
@@ -1283,9 +1277,12 @@ Ultimate control over what should be done when (actually: each time)
 an option is encountered on the command line can be achieved by
 designating a reference to a subroutine (or an anonymous subroutine)
 as the option destination. When GetOptions() encounters the option, it
-will call the subroutine with two arguments: the name of the option,
-and the value to be assigned. It is up to the subroutine to store the
-value, or do whatever it thinks is appropriate.
+will call the subroutine with two or three arguments. The first
+argument is the name of the option. For a scalar or array destination,
+the second argument is the value to be stored. For a hash destination,
+the second arguments is the key to the hash, and the third argument
+the value to be stored. It is up to the subroutine to store the value,
+or do whatever it thinks is appropriate.
 
 A trivial application of this mechanism is to implement options that
 are related to each other. For example:
@@ -1607,12 +1604,12 @@ example:
 A lone dash on the command line will now be a legal option, and using
 it will set variable C<$stdio>.
 
-=head2 Argument call-back
+=head2 Argument callback
 
 A special option 'name' C<<>> can be used to designate a subroutine
 to handle non-option arguments. When GetOptions() encounters an
 argument that does not look like an option, it will immediately call this
-subroutine and passes it the argument as a parameter.
+subroutine and passes it one parameter: the argument name.
 
 For example:
 
@@ -1709,14 +1706,14 @@ is equivalent to
 
     --foo --bar arg1 arg2 arg3
 
-If an argument call-back routine is specified, C<@ARGV> will always be
+If an argument callback routine is specified, C<@ARGV> will always be
 empty upon succesful return of GetOptions() since all options have been
 processed. The only exception is when C<--> is used:
 
     --foo arg1 --bar arg2 -- arg3
 
-will call the call-back routine for arg1 and arg2, and terminate
-GetOptions() leaving C<"arg2"> in C<@ARGV>.
+This will call the callback routine for arg1 and arg2, and then
+terminate GetOptions() leaving C<"arg2"> in C<@ARGV>.
 
 If C<require_order> is enabled, options processing
 terminates when the first non-option is encountered.
@@ -1894,13 +1891,44 @@ long names only, e.g.,
 
 That's why they're called 'options'.
 
+=head2 GetOptions does not split the command line correctly
+
+The command line is not split by GetOptions, but by the command line
+interpreter (CLI). On Unix, this is the shell. On Windows, it is
+COMMAND.COM or CMD.EXE. Other operating systems have other CLIs. 
+
+It is important to know that these CLIs may behave different when the
+command line contains special characters, in particular quotes or
+backslashes. For example, with Unix shells you can use single quotes
+(C<'>) and double quotes (C<">) to group words together. The following
+alternatives are equivalent on Unix:
+
+    "two words"
+    'two words'
+    two\ words
+
+In case of doubt, insert the following statement in front of your Perl
+program:
+
+    print STDERR (join("|",@ARGV),"\n");
+
+to verify how your CLI passes the arguments to the program.
+
+=head2 How do I put a "-?" option into a Getopt::Long?
+
+You can only obtain this using an alias, and Getopt::Long of at least
+version 2.13.
+
+    use Getopt::Long;
+    GetOptions ("help|?");    # -help and -? will both set $opt_help
+
 =head1 AUTHOR
 
 Johan Vromans <jvromans@squirrel.nl>
 
 =head1 COPYRIGHT AND DISCLAIMER
 
-This program is Copyright 2000,1990 by Johan Vromans.
+This program is Copyright 2001,1990 by Johan Vromans.
 This program is free software; you can redistribute it and/or
 modify it under the terms of the Perl Artistic License or the
 GNU General Public License as published by the Free Software
