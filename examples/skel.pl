@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
-my $RCS_Id = '$Id: skel.pl,v 1.10 2003-05-19 17:41:39+02 jv Exp $ ';
+my $RCS_Id = '$Id: skel.pl,v 1.11 2003-06-11 09:43:51+02 jv Exp $ ';
 
 # Skeleton for Getopt::Long.
 
 # Author          : Johan Vromans
 # Created On      : Tue Sep 15 15:59:04 1992
 # Last Modified By: Johan Vromans
-# Last Modified On: Thu May 15 14:30:11 2003
-# Update Count    : 73
+# Last Modified On: Wed Jun 11 09:43:46 2003
+# Update Count    : 74
 # Status          : Unknown, Use with caution!
 
 ################ Common stuff ################
@@ -78,6 +78,7 @@ sample - skeleton for Getopt::Long applications
 sample [options] [file ...]
 
 Options:
+
    --ident		show identification
    --help		brief help message
    --verbose		verbose information

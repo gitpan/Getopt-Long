@@ -1,3 +1,20 @@
+Changes in version 2.34
+-----------------------
+
+* Auto-vivification of array and hash refs
+
+  If an option is specified to require an array or hash ref, and a
+  scalar reference is passed, this is auto-vivified to array or hash
+  ref. 
+
+  Example:
+
+	@ARGV = qw(--foo=xx);
+	GetOptions("foo=s@", \$var);
+	# Now $var->[0] eq "xx"
+
+* Cosmetic changes in some error messages.
+
 Changes in version 2.33
 -----------------------
 

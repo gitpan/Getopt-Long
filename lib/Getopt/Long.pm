@@ -2,12 +2,12 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pm,v 2.65 2003-05-19 17:44:13+02 jv Exp $
+# RCS Status      : $Id: GetoptLong.pm,v 2.67 2003-06-24 23:18:55+02 jv Exp jv $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Mon May 19 17:43:33 2003
-# Update Count    : 1330
+# Last Modified On: Fri Jul  4 23:04:47 2003
+# Update Count    : 1348
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.33;
+$VERSION        =  2.3302;
 # For testing versions only.
-#use vars qw($VERSION_STRING);
-#$VERSION_STRING = "2.32_06";
+use vars qw($VERSION_STRING);
+$VERSION_STRING = "2.33_02";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -260,7 +260,7 @@ sub GetOptions(@) {
     $error = '';
 
     print STDERR ("Getopt::Long $Getopt::Long::VERSION (",
-		  '$Revision: 2.65 $', ") ",
+		  '$Revision: 2.67 $', ") ",
 		  "called from package \"$pkg\".",
 		  "\n  ",
 		  "ARGV: (@ARGV)",
@@ -371,7 +371,18 @@ sub GetOptions(@) {
 	    elsif ( $rl eq "HASH" ) {
 		$opctl{$name}[CTL_DEST] = CTL_DEST_HASH;
 	    }
-	    elsif ( $rl eq "SCALAR" || $rl eq "CODE" ) {
+	    elsif ( $rl eq "SCALAR" ) {
+#		if ( $opctl{$name}[CTL_DEST] == CTL_DEST_ARRAY ) {
+#		    my $t = $linkage{$orig};
+#		    $$t = $linkage{$orig} = [];
+#		}
+#		elsif ( $opctl{$name}[CTL_DEST] == CTL_DEST_HASH ) {
+#		}
+#		else {
+		    # Ok.
+#		}
+	    }
+	    elsif ( $rl eq "CODE" ) {
 		# Ok.
 	    }
 	    else {
@@ -479,6 +490,26 @@ sub GetOptions(@) {
 		            else {
 			        ${$linkage{$opt}} = $arg;
 			    }
+			}
+			elsif ( $ctl->[CTL_DEST] == CTL_DEST_ARRAY ) {
+			    print STDERR ("=> ref(\$L{$opt}) auto-vivified",
+					  " to ARRAY\n")
+			      if $debug;
+			    my $t = $linkage{$opt};
+			    $$t = $linkage{$opt} = [];
+			    print STDERR ("=> push(\@{\$L{$opt}, \"$arg\")\n")
+			      if $debug;
+			    push (@{$linkage{$opt}}, $arg);
+			}
+			elsif ( $ctl->[CTL_DEST] == CTL_DEST_HASH ) {
+			    print STDERR ("=> ref(\$L{$opt}) auto-vivified",
+					  " to HASH\n")
+			      if $debug;
+			    my $t = $linkage{$opt};
+			    $$t = $linkage{$opt} = {};
+			    print STDERR ("=> \$\$L{$opt}->{$key} = \"$arg\"\n")
+			      if $debug;
+			    $linkage{$opt}->{$key} = $arg;
 			}
 			else {
 			    print STDERR ("=> \$\$L{$opt} = \"$arg\"\n")
@@ -857,6 +888,11 @@ sub FindOption ($$$$) {
     my $ctl = $opctl->{$tryopt};
     unless  ( defined $ctl ) {
 	return (0) if $passthrough;
+	# Pretend one char when bundling.
+	if ( $bundling == 1) {
+	    $opt = substr($opt,0,1);
+            unshift (@ARGV, $starter.$rest) if defined $rest;
+	}
 	warn ("Unknown option: ", $opt, "\n");
 	$error++;
 	return (1, undef);
@@ -1450,19 +1486,23 @@ use multiple directories to search for library files:
 To accomplish this behaviour, simply specify an array reference as the
 destination for the option:
 
-    my @libfiles = ();
     GetOptions ("library=s" => \@libfiles);
 
-Used with the example above, C<@libfiles> would contain two strings
-upon completion: C<"lib/srdlib"> and C<"lib/extlib">, in that order.
-It is also possible to specify that only integer or floating point
-numbers are acceptible values.
+Alternatively, you can specify that the option can have multiple
+values by adding a "@", and pass a scalar reference as the
+destination:
+
+    GetOptions ("library=s@" => \$libfiles);
+
+Used with the example above, C<@libfiles> (or C<@$libfiles>) would
+contain two strings upon completion: C<"lib/srdlib"> and
+C<"lib/extlib">, in that order. It is also possible to specify that
+only integer or floating point numbers are acceptible values.
 
 Often it is useful to allow comma-separated lists of values as well as
 multiple occurrences of the options. This is easy using Perl's split()
 and join() operators:
 
-    my @libfiles = ();
     GetOptions ("library=s" => \@libfiles);
     @libfiles = split(/,/,join(',',@libfiles));
 
@@ -1475,17 +1515,20 @@ If the option destination is a reference to a hash, the option will
 take, as value, strings of the form I<key>C<=>I<value>. The value will
 be stored with the specified key in the hash.
 
-    my %defines = ();
     GetOptions ("define=s" => \%defines);
+
+Alternatively you can use:
+
+    GetOptions ("define=s%" => \$defines);
 
 When used with command line options:
 
     --define os=linux --define vendor=redhat
 
-the hash C<%defines> will contain two keys, C<"os"> with value
-C<"linux> and C<"vendor"> with value C<"redhat">.
-It is also possible to specify that only integer or floating point
-numbers are acceptible values. The keys are always taken to be strings.
+the hash C<%defines> (or C<%$defines>) will contain two keys, C<"os">
+with value C<"linux> and C<"vendor"> with value C<"redhat">. It is
+also possible to specify that only integer or floating point numbers
+are acceptible values. The keys are always taken to be strings.
 
 =head2 User-defined subroutines to handle options
 
