@@ -55,9 +55,21 @@ WARNING: This is Getopt::Long version $version.
 The underscore in the version number indicates that this is
 an intermediate, preview or beta release.
 Please keep checking CPAN for the official release.
-
 EOD
 }
+
+unless ( eval { require Pod::Usage } ) {
+    print STDERR <<EOD;
+
+WARNING: Getopt::Long needs the module Pod::Usage for its built-in
+help facility. Pod::Usage seems not to be installed on this system.
+That is not a problem as long as the new help facility is not used.
+However, please consider installing Pod::Usage from CPAN as soon as
+convenient.
+EOD
+}
+
+print STDERR ("\n");
 
 WriteMakefile(
 	NAME      => "Getopt::Long",
@@ -79,4 +91,5 @@ WriteMakefile(
 #	MAN3PODS  => { "lib/Getopt/Long.pm" => 'blib/man3/Getopt::Long.3', },
 	dist      => { COMPRESS => 'gzip', SUFFIX => 'gz',
 		     },
+	PREREQ_PM => { "Pod::Usage" => 1.14 },
  );

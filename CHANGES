@@ -1,6 +1,45 @@
 Changes in version 2.33
 -----------------------
 
+**************** WARNING -- EXPERIMENTAL CODE AHEAD ****************
+
+* Getopt::Long will automatically provide --version and --help options
+  if the call to GetOptions did not specify them explicitly. Since
+  this is a non-compatible API change, the new features will only be
+  available to programs that explicitly require version 2.3203 or
+  later.
+
+  Getopt::Long uses module Pod::Usage to produce the help message from
+  the SYNOPSIS section of the program's POD.
+
+  Two subroutines can be exported on demand:
+
+  - VersionMessage
+
+    This subroutine prints the standard version message.
+
+  - HelpMessage
+
+    This subroutine prints the standard help message.
+
+  Both subroutines take the same arguments as Pod::Usage::pod2usage,
+  see its documentation for details.  
+
+  Example:
+
+    use Getopt::Long 2.3203 qw(GetOptions HelpMessage);
+    GetOptions(...) or HelpMessage(2);
+
+  Using a --help (or -?) command line option will write the SYNOPSIS
+  section of the program's POD to STDOUT, and exit with status 0.
+  However, an illegal option will produce the help text to STDERR,
+  and exit with status 2. This is in accordance with current
+  conventions.
+
+**************** END EXPERIMENTAL CODE ****************
+
+* Subroutine Configure can now be exported on demand.
+
 * Negatable options (with "!") now also support the "no-" prefix.
   On request of Ed Avis <eavis@amadeus.net>.
 

@@ -2,12 +2,12 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pm,v 2.64 2003-05-09 12:37:09+02 jv Exp $
+# RCS Status      : $Id: GetoptLong.pm,v 2.63 2003-04-04 18:44:03+02 jv Exp jv $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Fri May  9 12:21:35 2003
-# Update Count    : 1196
+# Last Modified On: Fri May  9 20:53:36 2003
+# Update Count    : 1269
 # Status          : Released
 
 ################ Copyright ################
@@ -35,12 +35,18 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3202;
+$VERSION        =  2.3203;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.32_02";
+$VERSION_STRING = "2.32_03";
 
 use Exporter;
+
+# Exported subroutines.
+sub GetOptions;
+sub Configure (@);
+sub HelpMessage(;$);
+sub VersionMessage(;$);
 
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter);
@@ -48,7 +54,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 BEGIN {
     # Init immediately so their contents can be used in the 'use vars' below.
     @EXPORT      = qw(&GetOptions $REQUIRE_ORDER $PERMUTE $RETURN_IN_ORDER);
-    @EXPORT_OK   = qw();
+    @EXPORT_OK   = qw(&HelpMessage &VersionMessage &Configure);
 }
 
 # User visible variables.
@@ -61,9 +67,7 @@ use vars qw($autoabbrev $getopt_compat $ignorecase $bundling $order
 use vars qw($genprefix $caller $gnu_compat);
 
 # Public subroutines.
-sub Configure (@);
 sub config (@);			# deprecated name
-sub GetOptions;
 
 # Private subroutines.
 sub ConfigDefaults ();
@@ -233,6 +237,9 @@ use constant CTL_DEFAULT => 4;
 #use constant CTL_RANGE   => ;
 #use constant CTL_REPEAT  => ;
 
+my $requested_version = 0;
+my $help_version_aware = 0;
+
 sub GetOptions {
 
     my @optionlist = @_;	# local copy of the option descriptions
@@ -249,7 +256,7 @@ sub GetOptions {
     $error = '';
 
     print STDERR ("Getopt::Long $Getopt::Long::VERSION (",
-		  '$Revision: 2.64 $', ") ",
+		  '$Revision: 2.63 $', ") ",
 		  "called from package \"$pkg\".",
 		  "\n  ",
 		  "ARGV: (@ARGV)",
@@ -391,6 +398,18 @@ sub GetOptions {
     # Bail out if errors found.
     die ($error) if $error;
     $error = 0;
+
+    # Supply --version and --help support, if needed and allowed.
+    if ( help_version_aware() ) {
+	if ( !defined($opctl{version}) ) {
+	    $opctl{version} = ['','version',0,CTL_DEST_CODE,undef];
+	    $linkage{version} = sub { VersionMessage() };
+	}
+	if ( !defined($opctl{help}) && !defined($opctl{'?'}) ) {
+	    $opctl{help} = $opctl{'?'} = ['','help',0,CTL_DEST_CODE,undef];
+	    $linkage{help} = sub { HelpMessage() };
+	}
+    }
 
     # Show the options tables if debugging.
     if ( $debug ) {
@@ -1121,6 +1140,90 @@ sub Configure (@) {
 # Deprecated name.
 sub config (@) {
     Configure (@_);
+}
+
+# Sneak way to know what version the user requested.
+sub VERSION {
+    $requested_version = $_[1];
+    &UNIVERSAL::VERSION;
+}
+
+# See if the program expects Getopt::Long to handle --version and --help.
+sub help_version_aware {
+    $help_version_aware
+      ||
+    $requested_version >= 2.3203;
+}
+
+# Issue a standard message for --version.
+#
+# The arguments are mostly the same as for Pod::Usage::pod2usage:
+#
+#  - a number (exit value)
+#  - a string (lead in message)
+#  - a hash with options. See Pod::Usage for details.
+#
+sub VersionMessage(;$) {
+    my $pa = setup_pa_args(shift);
+
+    my $v = $main::VERSION;
+    my $fh = $pa->{-output} ||
+      ($pa->{-exitval} eq "NOEXIT" || $pa->{-exitval} < 2) ? \*STDOUT : \*STDERR;
+
+    print $fh (defined($pa->{-message}) ? $pa->{-message} : (),
+	       $0, defined $v ? " version $v" : (),
+	       "\n",
+	       "(", __PACKAGE__, "::", "GetOptions",
+	       " version ", $VERSION_STRING, ";",
+	       " Perl version ",
+	       $] >= 5.006 ? sprintf("%vd", $^V) : $],
+	       ")\n");
+    exit($pa->{-exitval}) unless $pa->{-exitval} eq "NOEXIT";
+}
+
+# Issue a standard message for --help.
+#
+# The arguments are the same as for Pod::Usage::pod2usage:
+#
+#  - a number (exit value)
+#  - a string (lead in message)
+#  - a hash with options. See Pod::Usage for details.
+#
+sub HelpMessage(;$) {
+    my $pa = shift;
+    eval {
+	require Pod::Usage;
+	import Pod::Usage;
+	1;
+    } || die("Cannot provide help: cannot load Pod::Usage\n");
+
+    # Note that pod2usage will issue a warning if -exitval => NOEXIT.
+    pod2usage(setup_pa_args($pa));
+
+}
+
+# Helper routine to set up a normalized hash ref to be used as
+# argument to pod2usage.
+sub setup_pa_args {
+    my $pa = shift || {};
+    if ( UNIVERSAL::isa($pa, 'HASH') ) {
+	# Get rid of -msg vs. -message duality.
+	$pa->{-message} = $pa->{-msg};
+	delete($pa->{-msg});
+    }
+    else {
+	if ( $pa =~ /^-?\d+$/ ) {
+	    $pa = { -exitval => $pa };
+	}
+	else {
+	    $pa = { -message => $pa };
+	}
+    }
+
+    # These are _our_ defaults.
+    $pa->{-verbose} = 0 unless exists($pa->{-verbose});
+    $pa->{-exitval} = 0 unless exists($pa->{-exitval});
+    $pa;
 }
 
 1;
@@ -1921,8 +2024,6 @@ GetOptions returns true to indicate success.
 It returns false when the function detected one or more errors during
 option parsing. These errors are signalled using warn() and can be
 trapped with C<$SIG{__WARN__}>.
-
-Errors that can't happen are signalled using Carp::croak().
 
 =head1 Legacy
 
