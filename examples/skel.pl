@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $RCS_Id = '$Id: skel.pl,v 1.9 1999-10-22 15:30:09+02 jv Exp jv $ ';
+my $RCS_Id = '$Id: skel.pl,v 1.10 2003-05-19 17:41:39+02 jv Exp $ ';
 
 # Skeleton for Getopt::Long.
 
@@ -19,7 +19,7 @@ my $my_package = 'Sciurix';
 # Program name and version.
 my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
 # Tack '*' if it is not checked in into RCS.
-$my_version .= '*' if length('$Locker: jv $ ') > 12;
+$my_version .= '*' if length('$Locker:  $ ') > 12;
 
 ################ Command line parameters ################
 
