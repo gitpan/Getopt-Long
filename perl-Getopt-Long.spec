@@ -2,7 +2,7 @@ Summary: Getopt::Long -- extended command line options
 %define module Getopt-Long
 %define path   Getopt
 Name: perl-%{module}
-Version: 2.32_05
+Version: 2.34
 Release: 1
 Source: http://www.perl.com/CPAN/modules/by-module/%{path}/%{module}-%{version}.tar.gz
 Copyright: GPL or Artistic

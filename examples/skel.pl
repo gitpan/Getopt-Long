@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
-my $RCS_Id = '$Id: skel.pl,v 1.13 2003-09-21 13:21:49+02 jv Exp jv $ ';
+my $RCS_Id = '$Id: skel.pl,v 1.13 2003-09-21 13:21:49+02 jv Exp $ ';
 
 # Skeleton for Getopt::Long.
 
 # Author          : Johan Vromans
 # Created On      : Tue Sep 15 15:59:04 1992
 # Last Modified By: Johan Vromans
-# Last Modified On: Sun Sep 21 13:24:54 2003
-# Update Count    : 78
+# Last Modified On: Sun Sep 21 13:21:36 2003
+# Update Count    : 77
 # Status          : Unknown, Use with caution!
 
 ################ Common stuff ################
@@ -19,7 +19,7 @@ my $my_package = 'Sciurix';
 # Program name and version.
 my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
 # Tack '*' if it is not checked in into RCS.
-$my_version .= '*' if length('$Locker: jv $ ') > 12;
+$my_version .= '*' if length('$Locker:  $ ') > 12;
 
 ################ Command line parameters ################
 
@@ -48,7 +48,7 @@ exit 0;
 
 ################ Command Line Options ################
 
-use Getopt::Long 2.3303;		# will enable help/version
+use Getopt::Long 2.34;		# will enable help/version
 
 sub app_options {
 
