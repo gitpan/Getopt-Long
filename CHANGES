@@ -1,3 +1,22 @@
+Changes in version 2.33
+-----------------------
+
+* Negatable options (with "!") now also support the "no-" prefix.
+  On request of Ed Avis <eavis@amadeus.net>.
+
+* Some fixes with hashes and bundling.
+  Thanks to Anders Johnson <anders@wis-tech.com> and Andrei Gnepp <>.
+  Mandatory/optional status for hash values is now effective.
+  String valued options with no value now default to the empty string
+  instead of 1 (one).
+  NOTE: The hash options still remain more or less experimental.
+
+* Fix a pass_through bug where the options terminator (normally "--")
+  was not passed through in @ARGV.
+  Thanks to Philippe Verdret <philippe.verdret@xps-pro.com>.
+
+* Add FAQ: I "use GetOpt::Long;" (Windows) and now it doesn't work.
+
 Changes in version 2.32
 -----------------------
 

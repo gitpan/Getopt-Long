@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.16 2002-02-20 12:18:07+01 jv Exp $
+# $Id: Makefile.PL,v 1.16 2002-02-20 12:18:07+01 jv Exp jv $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -71,7 +71,9 @@ WriteMakefile(
 	INSTALLDIRS => 'perl',
 	PM 	  => { "lib/newgetopt.pl"  => '$(INST_LIB)/newgetopt.pl',
 		       "lib/Getopt/Long.pm" => '$(INST_LIB)/Getopt/Long.pm',
-#		       "perlcmdline.pod" => '$(INST_LIB)/pod/perlcmdline.pod',
+		       "lib/Getopt/Long/HelpMessage.pm" =>
+		         '$(INST_LIB)/Getopt/Long/HelpMessage.pm',#
+		       "perlcmdline.pod" => '$(INST_LIB)/pod/perlcmdline.pod',
 		     },
 #	MAN1PODS  => { "perlcmdline.pod" => 'blib/man1/perlcmdline.1', },
 #	MAN3PODS  => { "lib/Getopt/Long.pm" => 'blib/man3/Getopt::Long.3', },
