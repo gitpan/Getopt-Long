@@ -1,5 +1,7 @@
 #!./perl -w
 
+no strict;
+
 BEGIN {
     if ($ENV{PERL_CORE}) {
 	@INC = '../lib';
@@ -37,9 +39,9 @@ print (($ARGV[0] eq "bar")   ? "" : "not ", "ok 15\n");
 print (!(exists $lnk{foo})   ? "" : "not ", "ok 16\n");
 print (!(exists $lnk{baR})   ? "" : "not ", "ok 17\n");
 print (!(exists $lnk{bar})   ? "" : "not ", "ok 18\n");
-###
+
 @ARGV = qw(/Foo=-baR --bar bar);
-Getopt::Long::Configure ("default","prefix_pattern=(--|\\/|-|\\+)","long_prefix_pattern=(--|\\/)");
+Getopt::Long::Configure ("default","prefix_pattern=--|/|-|\\+","long_prefix_pattern=--|/");
 %lnk = ();
 my $bar;
 print "ok 19\n" if GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
@@ -59,7 +61,7 @@ print (!(exists $lnk{bar})   ? "" : "not ", "ok 28\n");
 
     @ARGV = qw(/Foo=-baR);
     Getopt::Long::Configure ("default","bundling","ignore_case_always",
-                             "prefix_pattern=(--|\\/|-|\\+)","long_prefix_pattern=(--)");
+                             "prefix_pattern=--|/|-|\\+","long_prefix_pattern=--");
     %lnk = ();
     undef $bar;
     GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
@@ -69,7 +71,7 @@ print (!(exists $lnk{bar})   ? "" : "not ", "ok 28\n");
     undef $bar;
      @ARGV = qw(/Foo=-baR);
     Getopt::Long::Configure ("default","bundling","ignore_case_always",
-                             "prefix_pattern=(--|\\/|-|\\+)","long_prefix_pattern=(--|\\/)");
+                             "prefix_pattern=--|/|-|\\+","long_prefix_pattern=--|/");
     GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
     print (($errors eq '') ? "" : "not ", "ok 30\n");
     print ((defined $lnk{Foo})   ? "" : "not ", "ok 31\n");

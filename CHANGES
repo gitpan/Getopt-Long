@@ -16,6 +16,8 @@ Changes in version 2.35
 
   This enhancement was suggested and implemented by Yves Orton.
 
+* Bugfix for Ticket #11377 (bug found and fixed by Ryan).
+
 **************** WARNING -- EXPERIMENTAL CODE AHEAD ****************
 
 * [Experimental] Options can take multiple values at once. E.g.,
