@@ -12,6 +12,17 @@ Changes in version 2.24
 
     use Getopt::Long qw(:config no_ignore_case bundling);
 
+* Add configuration options "gnu_getopt" and "gnu_compat".
+
+  "gnu_compat" controls whether --opt= is allowed, and what it should
+  do. Without "gnu_compat", --opt= gives an error. With "gnu_compat", 
+  --opt= will give option "opt" and empty value.
+  This is the way GNU getopt_long does it.
+
+  "gnu_getopt" is a short way of setting "gnu_compat bundling permute
+  no_getopt_compat. With "gnu_getopt", command line handling should be
+  fully compatible with GNU getopt_long.
+
 * Correct warnings when the user specified an array or hash
   destination using a non-lowercase option, e.g. "I=s@".
 
