@@ -83,9 +83,9 @@ WriteMakefile(
 	INSTALLDIRS => 'perl',
 	PM 	  => { "lib/newgetopt.pl"  => '$(INST_LIB)/newgetopt.pl',
 		       "lib/Getopt/Long.pm" => '$(INST_LIB)/Getopt/Long.pm',
-		       "lib/Getopt/Long/HelpMessage.pm" =>
-		         '$(INST_LIB)/Getopt/Long/HelpMessage.pm',#
-		       "perlcmdline.pod" => '$(INST_LIB)/pod/perlcmdline.pod',
+#		       "lib/Getopt/Long/HelpMessage.pm" =>
+#		         '$(INST_LIB)/Getopt/Long/HelpMessage.pm',#
+#		       "perlcmdline.pod" => '$(INST_LIB)/pod/perlcmdline.pod',
 		     },
 #	MAN1PODS  => { "perlcmdline.pod" => 'blib/man1/perlcmdline.1', },
 #	MAN3PODS  => { "lib/Getopt/Long.pm" => 'blib/man3/Getopt::Long.3', },
