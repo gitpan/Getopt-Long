@@ -1,13 +1,13 @@
 #!/usr/bin/perl -w
-my $RCS_Id = '$Id: skel.pl,v 1.11 2003-06-11 09:43:51+02 jv Exp $ ';
+my $RCS_Id = '$Id: skel.pl,v 1.13 2003-09-21 13:21:49+02 jv Exp jv $ ';
 
 # Skeleton for Getopt::Long.
 
 # Author          : Johan Vromans
 # Created On      : Tue Sep 15 15:59:04 1992
 # Last Modified By: Johan Vromans
-# Last Modified On: Wed Jun 11 09:43:46 2003
-# Update Count    : 74
+# Last Modified On: Sun Sep 21 13:24:54 2003
+# Update Count    : 78
 # Status          : Unknown, Use with caution!
 
 ################ Common stuff ################
@@ -19,7 +19,7 @@ my $my_package = 'Sciurix';
 # Program name and version.
 my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
 # Tack '*' if it is not checked in into RCS.
-$my_version .= '*' if length('$Locker:  $ ') > 12;
+$my_version .= '*' if length('$Locker: jv $ ') > 12;
 
 ################ Command line parameters ################
 
@@ -48,18 +48,18 @@ exit 0;
 
 ################ Command Line Options ################
 
-use Getopt::Long 2.33;		# will enable help/version
+use Getopt::Long 2.3303;		# will enable help/version
 
 sub app_options {
 
-    GetOptions(ident	=> \&app_ident,
-	       verbose	=> \$verbose,
+    GetOptions(ident	   => \&app_ident,
+	       verbose	   => \$verbose,
 	       # application specific options go here
 
 	       # development options
-	       test	=> \$test,
-	       trace	=> \$trace,
-	       debug	=> \$debug)
+	       test	   => \$test,
+	       trace	   => \$trace,
+	       debug	   => \$debug)
       or Getopt::Long::HelpMessage(2);
 }
 
