@@ -1,6 +1,5 @@
-Version 2.25 of module Getopt::Long is now available via CPAN. It
-should soon appear in directory authors/Johan_Vromans as file
-Getopt-Long-2.25.tar.gz. It will be standard part of Perl 5.6.1 and 5.7.x.
+Version 2.26 of module Getopt::Long has been released to CPAN. It will
+be standard part of Perl 5.8.
 
 Module Getopt::Long implements an extended getopt function called
 GetOptions(). This function implements the POSIX standard for command
@@ -14,12 +13,12 @@ it to the CPAN search engine:
   http://search.cpan.org/search?mode=module&query=Getopt::Long
   http://search.cpan.org/search?module=Getopt::Long
 
-Changes in version 2.25
+Changes in version 2.26
 -----------------------
 
 === to be filled in; see CHANGES ===
 
-Previous released version was 2.24, for Perl 5.7.0.
+Previous released version was 2.25.
 
 ---- README ----
 
