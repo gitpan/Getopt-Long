@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.14 2001-09-22 17:39:17+02 jv Exp $
+# $Id: Makefile.PL,v 1.16 2002-02-20 12:18:07+01 jv Exp $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -65,13 +65,16 @@ WriteMakefile(
 
 	( $] < 5.005 ) ? () : (
 	AUTHOR => 'Johan Vromans (jvromans@squirrel.nl)',
-        ABSTRACT => 'Extended getopt function for command line parsing',
+        ABSTRACT => 'Module to handle parsing command line options',
         ),
 
 	INSTALLDIRS => 'perl',
 	PM 	  => { "lib/newgetopt.pl"  => '$(INST_LIB)/newgetopt.pl',
-		       "lib/Getopt/Long.pm" => '$(INST_LIB)/Getopt/Long.pm'
+		       "lib/Getopt/Long.pm" => '$(INST_LIB)/Getopt/Long.pm',
+#		       "perlcmdline.pod" => '$(INST_LIB)/pod/perlcmdline.pod',
 		     },
+#	MAN1PODS  => { "perlcmdline.pod" => 'blib/man1/perlcmdline.1', },
+#	MAN3PODS  => { "lib/Getopt/Long.pm" => 'blib/man3/Getopt::Long.3', },
 	dist      => { COMPRESS => 'gzip', SUFFIX => 'gz',
 		     },
  );
