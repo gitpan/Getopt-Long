@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.10 2000-01-19 09:47:15+01 jv Exp $
+# $Id: Makefile.PL,v 1.11 2000-05-26 08:08:17+02 jv Exp $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -25,6 +25,17 @@ EOD
 	}
     }
     "";
+}
+
+if ( $Getopt::Long::VERSION =~ /_/ ) {
+    print STDERR <<EOD;
+
+WARNING: This is Getopt::Long version $Getopt::Long::VERSION.
+The underscore in the version number indicates that this is
+an intermediate, preview or beta release.
+Please keep checking CPAN for the official release.
+
+EOD
 }
 
 WriteMakefile(
