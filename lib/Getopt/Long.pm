@@ -6,8 +6,8 @@ package Getopt::Long;
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Fri Jul 28 16:54:21 2000
-# Update Count    : 737
+# Last Modified On: Mon Jul 31 21:21:13 2000
+# Update Count    : 739
 # Status          : Released
 
 ################ Copyright ################
@@ -36,7 +36,7 @@ BEGIN {
     require 5.004;
     use Exporter ();
     use vars     qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = "2.23_04";
+    $VERSION     = "2.23_05";
 
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&GetOptions $REQUIRE_ORDER $PERMUTE $RETURN_IN_ORDER);
@@ -106,7 +106,7 @@ sub import {
 	push (@$dest, $_);	# push
     }
     # Hide one level and call super.
-    $Exporter::ExportLevel = 1;
+    local $Exporter::ExportLevel = 1;
     $pkg->SUPER::import(@syms);
     # And configure.
     Configure (@config) if @config;
@@ -126,12 +126,14 @@ ConfigDefaults();
 package Getopt::Long::Parser;
 
 # NOTE: The object oriented routines use $error for thread locking.
-eval "sub lock{}" if $] < 5.005;
+my $_lock = sub {
+    lock ($Getopt::Long::error) if $] >= 5.005
+};
 
 # Store a copy of the default configuration. Since ConfigDefaults has
 # just been called, what we get from Configure is the default.
 my $default_config = do {
-    lock ($Getopt::Long::error);
+    &$_lock;
     Getopt::Long::Configure ()
 };
 
@@ -147,7 +149,7 @@ sub new {
 
     # Process config attributes.
     if ( defined $atts{config} ) {
-	lock ($Getopt::Long::error);
+	&$_lock;
 	my $save = Getopt::Long::Configure ($default_config, @{$atts{config}});
 	$self->{settings} = Getopt::Long::Configure ($save);
 	delete ($atts{config});
@@ -168,7 +170,7 @@ sub new {
 sub configure {
     my ($self) = shift;
 
-    lock ($Getopt::Long::error);
+    &$_lock;
 
     # Restore settings, merge new settings in.
     my $save = Getopt::Long::Configure ($self->{settings}, @_);
@@ -180,7 +182,7 @@ sub configure {
 sub getoptions {
     my ($self) = shift;
 
-    lock ($Getopt::Long::error);
+    &$_lock;
 
     # Restore config settings.
     my $save = Getopt::Long::Configure ($self->{settings});
