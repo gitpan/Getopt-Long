@@ -1,3 +1,10 @@
+Changes in version 2.25
+-----------------------
+
+* Change (correct) handling of a lone "-" on the command line. It will
+  now be treated as a non-option unless ajn explicit specification was
+  passed to GetOptions. See the manual.
+
 Changes in version 2.24
 -----------------------
 
