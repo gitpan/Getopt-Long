@@ -17,6 +17,7 @@ Changes in version 2.35
   This enhancement was suggested and implemented by Yves Orton.
 
 * Bugfix for Ticket #11377 (bug found and fixed by Ryan).
+* Bugfix for Ticket #12380.
 
 **************** WARNING -- EXPERIMENTAL CODE AHEAD ****************
 

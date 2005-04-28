@@ -2,12 +2,12 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pm,v 2.71 2005-02-04 11:52:03+01 jv Exp $
+# RCS Status      : $Id: GetoptLong.pm,v 2.72 2005-04-28 21:18:33+02 jv Exp $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Fri Feb  4 11:49:16 2005
-# Update Count    : 1451
+# Last Modified On: Thu Apr 28 21:14:19 2005
+# Update Count    : 1456
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3403;
+$VERSION        =  2.3404;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.34_03";
+$VERSION_STRING = "2.34_04";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -267,7 +267,7 @@ sub GetOptions(@) {
 	local ($^W) = 0;
 	print STDERR
 	  ("Getopt::Long $Getopt::Long::VERSION (",
-	   '$Revision: 2.71 $', ") ",
+	   '$Revision: 2.72 $', ") ",
 	   "called from package \"$pkg\".",
 	   "\n  ",
 	   "ARGV: (@ARGV)",
@@ -915,9 +915,10 @@ sub FindOption ($$$$) {
 	    # See if all matches are for the same option.
 	    my %hit;
 	    foreach ( @hits ) {
-		$_ = $opctl->{$_}->[CTL_CNAME]
-		  if defined $opctl->{$_}->[CTL_CNAME];
-		$hit{$_} = 1;
+		my $hit = $_;
+		$hit = $opctl->{$hit}->[CTL_CNAME]
+		  if defined $opctl->{$hit}->[CTL_CNAME];
+		$hit{$hit} = 1;
 	    }
 	    # Remove auto-supplied options (version, help).
 	    if ( keys(%hit) == 2 ) {
