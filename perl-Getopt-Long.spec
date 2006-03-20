@@ -1,17 +1,20 @@
-Summary: Getopt::Long -- extended command line options
-%define module Getopt-Long
+%define modname Getopt-Long
+%define modversion 2.35_01
 %define path   Getopt
-Name: perl-%{module}
-Version: 2.35
+
+Name: perl-%{modname}
+Version: %{modversion}
 Release: 1
-Source: http://www.perl.com/CPAN/modules/by-module/%{path}/%{module}-%{version}.tar.gz
-Copyright: GPL or Artistic
-Group: Command/Tools
+Source: http://www.perl.com/CPAN/modules/by-module/%{path}/%{modname}-%{version}.tar.gz
 Packager: Johan Vromans <jvromans@squirrel.nl>
 BuildRoot: /usr/tmp/%{name}-buildroot
 Requires: perl >= 5.6.0
 BuildRequires: perl >= 5.6.0
 BuildArchitectures: noarch
+
+Summary: Getopt::Long -- extended command line options
+License: GPL or Artistic
+Group: Command/Tools
 
 %description
 Module Getopt::Long implements an extended getopt function called
@@ -28,7 +31,7 @@ IMPORTANT: Since Getopt::Long is part of core perl, installing this
 kit requires the '--force' option to the rpm program.
 
 %prep
-%setup -n %{module}-%{version}
+%setup -n %{modname}-%{version}
 
 %build
 perl Makefile.PL
@@ -37,8 +40,7 @@ make test
 
 %install
 rm -fr $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr
-make install PREFIX=$RPM_BUILD_ROOT/usr
+make DESTDIR=$RPM_BUILD_ROOT install
 
 # Remove some unwanted files
 find $RPM_BUILD_ROOT -name .packlist -exec rm -f {} \;
