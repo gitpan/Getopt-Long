@@ -1,4 +1,4 @@
-# $Id: Makefile.PL,v 1.17 2003-05-19 17:36:30+02 jv Exp $
+# $Id: Makefile.PL,v 1.19 2006/07/18 21:20:12 jv Exp $
 
 use Config;
 use ExtUtils::MakeMaker 5.0;
@@ -92,22 +92,22 @@ WriteMakefile(
  );
 
 # Write .spec file.
-WriteSpecfile($x->{DISTNAME}, $x->{VERSION});
+# Note that $x->{...} is not supported in older Perls.
+WriteSpecfile($x->{DISTNAME}, $x->{VERSION}) if $] >= 5.008;
 
 sub WriteSpecfile {
     my $name    = shift;
     my $version = shift;
 
-    my $fh;
-    if ( open ($fh, "rpm/$name.spec.in") ) {
+    if ( open (FH, "rpm/$name.spec.in") ) {
 	print "Writing RPM spec file...\n";
-	my $newfh;
-	open ($newfh, ">perl-$name.spec");
-	while ( <$fh> ) {
+	open (NEWFH, ">perl-$name.spec");
+	while ( <FH> ) {
 	    s/%define modname [\w---]+/%define modname $name/;
 	    s/%define modversion \d+\.\d+/%define modversion $version/;
-	    print $newfh $_;
+	    print NEWFH $_;
 	}
-	close($newfh);
+	close(NEWFH);
+	close(FH);
     }
 }

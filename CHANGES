@@ -30,6 +30,16 @@ Changes in version 2.36
 
 **************** END EXPERIMENTAL CODE ****************
 
+* Number values for options may include underscores for readability
+  (just like Perls numbers).
+
+* Bugfix for Ticket #19432 (found and fixed by khali).
+
+* Bugfix to make it cooperate with the bignum pragma. Thanks to Merijn
+  and Yves.
+
+* Various small fixes to make the test suite run under 5.004_05.
+
 Changes in version 2.35
 -----------------------
 

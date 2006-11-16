@@ -6,8 +6,8 @@ package Getopt::Long;
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Mon Mar 20 15:49:44 2006
-# Update Count    : 1502
+# Last Modified On: Thu Nov 16 14:17:42 2006
+# Update Count    : 1551
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3501;
+$VERSION        =  2.3502;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.35_01";
+$VERSION_STRING = "2.35_02";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -250,6 +250,20 @@ use constant CTL_AMAX    => 5;
 #use constant CTL_RANGE   => ;
 #use constant CTL_REPEAT  => ;
 
+# Rather liberal patterns to match numbers.
+use constant PAT_INT   => "[-+]?_*[0-9][0-9_]*";
+use constant PAT_XINT  =>
+  "(?:".
+	  "[-+]?_*[1-9][0-9_]*".
+  "|".
+	  "0x_*[0-9a-f][0-9a-f_]*".
+  "|".
+	  "0b_*[01][01_]*".
+  "|".
+	  "0[0-7_]*".
+  ")";
+use constant PAT_FLOAT => "[-+]?[0-9._]+(\.[0-9_]+)?([eE][-+]?[0-9_]+)?";
+
 sub GetOptions(@) {
     # Shift in default array.
     unshift(@_, \@ARGV);
@@ -407,7 +421,7 @@ sub GetOptionsFromArray($@) {
 	    elsif ( $rl eq "HASH" ) {
 		$opctl{$name}[CTL_DEST] = CTL_DEST_HASH;
 	    }
-	    elsif ( $rl eq "SCALAR" ) {
+	    elsif ( $rl eq "SCALAR" || $rl eq "REF" ) {
 #		if ( $opctl{$name}[CTL_DEST] == CTL_DEST_ARRAY ) {
 #		    my $t = $linkage{$orig};
 #		    $$t = $linkage{$orig} = [];
@@ -519,7 +533,8 @@ sub GetOptionsFromArray($@) {
 		    print STDERR ("=> ref(\$L{$opt}) -> ",
 				  ref($linkage{$opt}), "\n") if $debug;
 
-		    if ( ref($linkage{$opt}) eq 'SCALAR' ) {
+		    if ( ref($linkage{$opt}) eq 'SCALAR'
+			 || ref($linkage{$opt}) eq 'REF' ) {
 			if ( $ctl->[CTL_TYPE] eq '+' ) {
 			    print STDERR ("=> \$\$L{$opt} += \"$arg\"\n")
 			      if $debug;
@@ -575,9 +590,16 @@ sub GetOptionsFromArray($@) {
 			    local $@;
 			    local $SIG{__DIE__}  = '__DEFAULT__';
 			    eval {
-				&{$linkage{$opt}}($opt,
-						  $ctl->[CTL_DEST] == CTL_DEST_HASH ? ($key) : (),
-						  $arg);
+				&{$linkage{$opt}}
+				  (Getopt::Long::CallBack->new
+				   (name    => $opt,
+				    ctl     => $ctl,
+				    opctl   => \%opctl,
+				    linkage => \%linkage,
+				    prefix  => $prefix,
+				   ),
+				   $ctl->[CTL_DEST] == CTL_DEST_HASH ? ($key) : (),
+				   $arg);
 			    };
 			    $@;
 			};
@@ -650,6 +672,7 @@ sub GetOptionsFromArray($@) {
 		    if ( @$argv ) {
 			if ( ValidValue($ctl, $argv->[0], 1, $argend, $prefix) ) {
 			    $arg = shift(@$argv);
+			    $arg =~ tr/_//d if $ctl->[CTL_TYPE] =~ /^[iIo]$/;
 			    ($key,$arg) = $arg =~ /^([^=]+)=(.*)/
 			      if $ctl->[CTL_DEST] == CTL_DEST_HASH;
 			    next;
@@ -666,6 +689,7 @@ sub GetOptionsFromArray($@) {
 		# Any more args?
 		if ( @$argv && ValidValue($ctl, $argv->[0], 0, $argend, $prefix) ) {
 		    $arg = shift(@$argv);
+		    $arg =~ tr/_//d if $ctl->[CTL_TYPE] =~ /^[iIo]$/;
 		    ($key,$arg) = $arg =~ /^([^=]+)=(.*)/
 		      if $ctl->[CTL_DEST] == CTL_DEST_HASH;
 		    next;
@@ -1084,6 +1108,10 @@ sub FindOption ($$$$$) {
 	# A mandatory string takes anything.
 	return (1, $opt, $ctl, $arg, $key) if $mand;
 
+	# Same for optional string as a hash value
+	return (1, $opt, $ctl, $arg, $key)
+	  if $ctl->[CTL_DEST] == CTL_DEST_HASH;
+
 	# An optional string takes almost anything.
 	return (1, $opt, $ctl, $arg, $key)
 	  if defined $optarg || defined $rest;
@@ -1103,9 +1131,7 @@ sub FindOption ($$$$$) {
             || $type eq 'I'	# numeric/integer w/ incr default
 	    || $type eq 'o' ) { # dec/oct/hex/bin value
 
-	my $o_valid =
-	  $type eq 'o' ? "[-+]?[1-9][0-9]*|0x[0-9a-f]+|0b[01]+|0[0-7]*"
-	    : "[-+]?[0-9]+";
+	my $o_valid = $type eq 'o' ? PAT_XINT : PAT_INT;
 
 	if ( $bundling && defined $rest
 	     && $rest =~ /^($key_valid)($o_valid)(.*)$/si ) {
@@ -1114,7 +1140,8 @@ sub FindOption ($$$$$) {
 	    $arg = ($type eq 'o' && $arg =~ /^0/) ? oct($arg) : 0+$arg;
 	    unshift (@$argv, $starter.$rest) if defined $rest && $rest ne '';
 	}
-	elsif ( $arg =~ /^($o_valid)$/si ) {
+	elsif ( $arg =~ /^$o_valid$/si ) {
+	    $arg =~ tr/_//d;
 	    $arg = ($type eq 'o' && $arg =~ /^0/) ? oct($arg) : 0+$arg;
 	}
 	else {
@@ -1152,13 +1179,18 @@ sub FindOption ($$$$$) {
 	# We require at least one digit before a point or 'e',
 	# and at least one digit following the point and 'e'.
 	# [-]NN[.NN][eNN]
+	my $o_valid = PAT_FLOAT;
 	if ( $bundling && defined $rest &&
-	     $rest =~ /^($key_valid)([-+]?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?)(.*)$/s ) {
+	     $rest =~ /^($key_valid)($o_valid)(.*)$/s ) {
+	    $arg =~ tr/_//d;
 	    ($key, $arg, $rest) = ($1, $2, $+);
 	    chop($key) if $key;
 	    unshift (@$argv, $starter.$rest) if defined $rest && $rest ne '';
 	}
-	elsif ( $arg !~ /^[-+]?[0-9.]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$/ ) {
+	elsif ( $arg =~ /^$o_valid$/ ) {
+	    $arg =~ tr/_//d;
+	}
+	else {
 	    if ( defined $optarg || $mand ) {
 		if ( $passthrough ) {
 		    unshift (@$argv, defined $rest ? $starter.$rest : $arg)
@@ -1211,10 +1243,7 @@ sub ValidValue ($$$$$) {
             || $type eq 'I'	# numeric/integer w/ incr default
 	    || $type eq 'o' ) { # dec/oct/hex/bin value
 
-	my $o_valid =
-	  $type eq 'o' ? "[-+]?[1-9][0-9]*|0x[0-9a-f]+|0b[01]+|0[0-7]*"
-	    : "[-+]?[0-9]+";
-
+	my $o_valid = $type eq 'o' ? PAT_XINT : PAT_INT;
 	return $arg =~ /^$o_valid$/si;
     }
 
@@ -1222,7 +1251,8 @@ sub ValidValue ($$$$$) {
 	# We require at least one digit before a point or 'e',
 	# and at least one digit following the point and 'e'.
 	# [-]NN[.NN][eNN]
-	return $arg =~ /^[-+]?[0-9.]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$/;
+	my $o_valid = PAT_FLOAT;
+	return $arg =~ /^$o_valid$/;
     }
     die("ValidValue: Cannot happen\n");
 }
@@ -1436,6 +1466,24 @@ sub VERSION {
     $requested_version = $_[1];
     shift->SUPER::VERSION(@_);
 }
+
+package Getopt::Long::CallBack;
+
+sub new {
+    my ($pkg, %atts) = @_;
+    bless { %atts }, $pkg;
+}
+
+sub name {
+    my $self = shift;
+    ''.$self->{name};
+}
+
+use overload
+  # Treat this object as an oridinary string for legacy API.
+  '""'	   => \&name,
+  '0+'	   => sub { 0 },
+  fallback => 1;
 
 1;
 
@@ -2498,6 +2546,25 @@ Previous versions of Getopt::Long used variables for the purpose of
 configuring. Although manipulating these variables still work, it is
 strongly encouraged to use the C<Configure> routine that was introduced
 in version 2.17. Besides, it is much easier.
+
+=head1 Tips and Techniques
+
+=head2 Pushing multiple values in a hash option
+
+Sometimes you want to combine the best of hashes and arrays. For
+example, the command line:
+
+  --list add=first --list add=second --list add=third
+
+where each successive 'list add' option will push the value of add
+into array ref $list->{'add'}. The result would be like
+
+  $list->{add} = [qw(first second third)];
+
+This can be accomplished with a destination routine:
+
+  GetOptions('list=s%' =>
+               sub { push(@{$list{$_[1]}}, $_[2]) });
 
 =head1 Trouble Shooting
 
