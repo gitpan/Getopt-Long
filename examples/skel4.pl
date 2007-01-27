@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-my $RCS_Id = '$Id: skel1.pl,v 1.1 2006/07/19 08:54:04 jv Exp $ ';
+my $RCS_Id = '$Id: skel4.pl,v 1.1 2007/01/27 19:56:53 jv Exp $ ';
 
 # Skeleton for a Getopt::Long application.
 

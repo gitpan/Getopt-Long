@@ -40,6 +40,8 @@ Changes in version 2.36
 
 * Various small fixes to make the test suite run under 5.004_05.
 
+* More examples (skeletons).
+
 Changes in version 2.35
 -----------------------
 

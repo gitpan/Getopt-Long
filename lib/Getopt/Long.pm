@@ -2,17 +2,17 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: GetoptLong.pm,v 2.72 2005-04-28 21:18:33+02 jv Exp jv $
+# RCS Status      : $Id: Long.pm,v 2.73 2007/01/27 20:00:34 jv Exp $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Thu Nov 16 14:17:42 2006
-# Update Count    : 1551
+# Last Modified On: Sat Jan 27 20:59:00 2007
+# Update Count    : 1552
 # Status          : Released
 
 ################ Copyright ################
 
-# This program is Copyright 1990,2006 by Johan Vromans.
+# This program is Copyright 1990,2007 by Johan Vromans.
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the Perl Artistic License or the
 # GNU General Public License as published by the Free Software
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3502;
+$VERSION        =  2.36;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.35_02";
+$VERSION_STRING = "2.36";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -305,7 +305,7 @@ sub GetOptionsFromArray($@) {
 	local ($^W) = 0;
 	print STDERR
 	  ("Getopt::Long $Getopt::Long::VERSION (",
-	   '$Revision: 2.72 $', ") ",
+	   '$Revision: 2.73 $', ") ",
 	   "called from package \"$pkg\".",
 	   "\n  ",
 	   "argv: (@$argv)",
@@ -2617,7 +2617,7 @@ Johan Vromans <jvromans@squirrel.nl>
 
 =head1 COPYRIGHT AND DISCLAIMER
 
-This program is Copyright 1990,2006 by Johan Vromans.
+This program is Copyright 1990,2007 by Johan Vromans.
 This program is free software; you can redistribute it and/or
 modify it under the terms of the Perl Artistic License or the
 GNU General Public License as published by the Free Software
