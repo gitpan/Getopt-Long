@@ -6,8 +6,8 @@ package Getopt::Long;
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Fri Apr 27 14:35:06 2007
-# Update Count    : 1564
+# Last Modified On: Sun Sep 16 17:44:36 2007
+# Update Count    : 1570
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.36_01;
+$VERSION        =  2.36_02;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.36_01";
+$VERSION_STRING = "2.36_02";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -1055,7 +1055,7 @@ sub FindOption ($$$$$) {
 
     # Check if there is an option argument available.
     if ( $gnu_compat && defined $optarg && $optarg eq '' ) {
-	return (1, $opt, $ctl, $type eq 's' ? '' : 0) unless $mand;
+	return (1, $opt, $ctl, $type eq 's' ? '' : 0) ;#unless $mand;
 	$optarg = 0 unless $type eq 's';
     }
 
@@ -1064,7 +1064,8 @@ sub FindOption ($$$$$) {
 	 ? ($optarg eq '')
 	 : !(defined $rest || @$argv > 0) ) {
 	# Complain if this option needs an argument.
-	if ( $mand && !($type eq 's' ? defined($optarg) : 0) ) {
+#	if ( $mand && !($type eq 's' ? defined($optarg) : 0) ) {
+	if ( $mand ) {
 	    return (0) if $passthrough;
 	    warn ("Option ", $opt, " requires an argument\n");
 	    $error++;
