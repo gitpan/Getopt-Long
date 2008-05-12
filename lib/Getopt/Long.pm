@@ -6,8 +6,8 @@ package Getopt::Long;
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Sat Sep 29 15:38:55 2007
-# Update Count    : 1571
+# Last Modified On: Mon May 12 16:08:21 2008
+# Update Count    : 1582
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.37;
+$VERSION        =  2.3701;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.37";
+$VERSION_STRING = "2.37_01";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -707,7 +707,16 @@ sub GetOptionsFromArray($@) {
 		my $eval_error = do {
 		    local $@;
 		    local $SIG{__DIE__}  = '__DEFAULT__';
-		    eval { &$cb ($tryopt) };
+		    eval {
+			&$cb
+			  (Getopt::Long::CallBack->new
+			   (name    => $tryopt,
+			    ctl     => $ctl,
+			    opctl   => \%opctl,
+			    linkage => \%linkage,
+			    prefix  => $prefix,
+			   ));
+		    };
 		    $@;
 		};
 		print STDERR ("=> die($eval_error)\n")
@@ -1481,9 +1490,8 @@ sub name {
 }
 
 use overload
-  # Treat this object as an oridinary string for legacy API.
+  # Treat this object as an ordinary string for legacy API.
   '""'	   => \&name,
-  '0+'	   => sub { 0 },
   fallback => 1;
 
 1;
@@ -1760,7 +1768,8 @@ an option is encountered on the command line can be achieved by
 designating a reference to a subroutine (or an anonymous subroutine)
 as the option destination. When GetOptions() encounters the option, it
 will call the subroutine with two or three arguments. The first
-argument is the name of the option. For a scalar or array destination,
+argument is the name of the option. (Actually, it is an object that
+stringifies to the name of the option.) For a scalar or array destination,
 the second argument is the value to be stored. For a hash destination,
 the second arguments is the key to the hash, and the third argument
 the value to be stored. It is up to the subroutine to store the value,
@@ -2155,7 +2164,8 @@ it will set variable C<$stdio>.
 A special option 'name' C<< <> >> can be used to designate a subroutine
 to handle non-option arguments. When GetOptions() encounters an
 argument that does not look like an option, it will immediately call this
-subroutine and passes it one parameter: the argument name.
+subroutine and passes it one parameter: the argument name. Well, actually
+it is an object that stringifies to the argument name.
 
 For example:
 
