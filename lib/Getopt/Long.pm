@@ -6,8 +6,8 @@ package Getopt::Long;
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Mon May 12 16:08:21 2008
-# Update Count    : 1582
+# Last Modified On: Wed Jun 25 16:21:17 2008
+# Update Count    : 1589
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3701;
+$VERSION        =  2.3702;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.37_01";
+$VERSION_STRING = "2.37_02";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -205,7 +205,7 @@ sub getoptions {
 	# Locally set exception handler to default, otherwise it will
 	# be called implicitly here, and again explicitly when we try
 	# to deliver the messages.
-	local ($SIG{__DIE__}) = '__DEFAULT__';
+	local ($SIG{__DIE__}) = 'DEFAULT';
 	$ret = Getopt::Long::GetOptions (@_);
     };
 
@@ -460,6 +460,14 @@ sub GetOptionsFromArray($@) {
 		eval ("\$linkage{\$orig} = \\\$".$pkg."::opt_$ov;");
 	    }
 	}
+
+	if ( $opctl{$name}[CTL_TYPE] eq 'I'
+	     && ( $opctl{$name}[CTL_DEST] == CTL_DEST_ARRAY
+		  || $opctl{$name}[CTL_DEST] == CTL_DEST_HASH )
+	   ) {
+	    $error .= "Invalid option linkage for \"$opt\"\n";
+	}
+
     }
 
     # Bail out if errors found.
@@ -588,7 +596,7 @@ sub GetOptionsFromArray($@) {
 			    if $debug;
 			my $eval_error = do {
 			    local $@;
-			    local $SIG{__DIE__}  = '__DEFAULT__';
+			    local $SIG{__DIE__}  = 'DEFAULT';
 			    eval {
 				&{$linkage{$opt}}
 				  (Getopt::Long::CallBack->new
@@ -706,7 +714,7 @@ sub GetOptionsFromArray($@) {
 		  if $debug;
 		my $eval_error = do {
 		    local $@;
-		    local $SIG{__DIE__}  = '__DEFAULT__';
+		    local $SIG{__DIE__}  = 'DEFAULT';
 		    eval {
 			&$cb
 			  (Getopt::Long::CallBack->new
@@ -786,7 +794,7 @@ sub ParseOptionSpec ($$) {
 		     # Option name
 		     (?: \w+[-\w]* )
 		     # Alias names, or "?"
-		     (?: \| (?: \? | \w[-\w]* )? )*
+		     (?: \| (?: \? | \w[-\w]* ) )*
 		   )?
 		   (
 		     # Either modifiers ...
@@ -1757,7 +1765,7 @@ When used with command line options:
     --define os=linux --define vendor=redhat
 
 the hash C<%defines> (or C<%$defines>) will contain two keys, C<"os">
-with value C<"linux> and C<"vendor"> with value C<"redhat">. It is
+with value C<"linux"> and C<"vendor"> with value C<"redhat">. It is
 also possible to specify that only integer or floating point numbers
 are acceptable values. The keys are always taken to be strings.
 
@@ -1794,6 +1802,12 @@ If the text of the error message starts with an exclamation mark C<!>
 it is interpreted specially by GetOptions(). There is currently one
 special command implemented: C<die("!FINISH")> will cause GetOptions()
 to stop processing options, as if it encountered a double dash C<-->.
+
+In version 2.37 the first argument to the callback function was
+changed from string to object. This was done to make room for
+extensions and more detailed control. The object stringifies to the
+option name so this change should not introduce compatibility
+problems.
 
 =head2 Options with multiple names
 
