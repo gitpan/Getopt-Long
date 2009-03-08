@@ -2,12 +2,12 @@
 
 package Getopt::Long;
 
-# RCS Status      : $Id: Long.pm,v 2.74 2007/09/29 13:40:13 jv Exp $
+# RCS Status      : $Id: Long.pm,v 2.75 2009/03/08 19:40:25 jv Exp $
 # Author          : Johan Vromans
 # Created On      : Tue Sep 11 15:00:12 1990
 # Last Modified By: Johan Vromans
-# Last Modified On: Wed Jun 25 16:21:17 2008
-# Update Count    : 1589
+# Last Modified On: Thu Oct  2 13:49:52 2008
+# Update Count    : 1599
 # Status          : Released
 
 ################ Copyright ################
@@ -35,10 +35,10 @@ use 5.004;
 use strict;
 
 use vars qw($VERSION);
-$VERSION        =  2.3702;
+$VERSION        =  2.3703;
 # For testing versions only.
 use vars qw($VERSION_STRING);
-$VERSION_STRING = "2.37_02";
+$VERSION_STRING = "2.37_03";
 
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -46,8 +46,8 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 # Exported subroutines.
 sub GetOptions(@);		# always
-sub GetOptionsFromArray($@);	# on demand
-sub GetOptionsFromString($@);	# on demand
+sub GetOptionsFromArray(@);	# on demand
+sub GetOptionsFromString(@);	# on demand
 sub Configure(@);		# on demand
 sub HelpMessage(@);		# on demand
 sub VersionMessage(@);		# in demand
@@ -271,7 +271,7 @@ sub GetOptions(@) {
     goto &GetOptionsFromArray;
 }
 
-sub GetOptionsFromString($@) {
+sub GetOptionsFromString(@) {
     my ($string) = shift;
     require Text::ParseWords;
     my $args = [ Text::ParseWords::shellwords($string) ];
@@ -285,7 +285,7 @@ sub GetOptionsFromString($@) {
     $ret;
 }
 
-sub GetOptionsFromArray($@) {
+sub GetOptionsFromArray(@) {
 
     my ($argv, @optionlist) = @_;	# local copy of the option descriptions
     my $argend = '--';		# option list terminator
@@ -305,7 +305,7 @@ sub GetOptionsFromArray($@) {
 	local ($^W) = 0;
 	print STDERR
 	  ("Getopt::Long $Getopt::Long::VERSION (",
-	   '$Revision: 2.74 $', ") ",
+	   '$Revision: 2.75 $', ") ",
 	   "called from package \"$pkg\".",
 	   "\n  ",
 	   "argv: (@$argv)",
@@ -967,7 +967,7 @@ sub FindOption ($$$$$) {
     }
 
     # Try auto-abbreviation.
-    elsif ( $autoabbrev ) {
+    elsif ( $autoabbrev && $opt ne "" ) {
 	# Sort the possible long option names.
 	my @names = sort(keys (%$opctl));
 	# Downcase if allowed.
@@ -1033,7 +1033,12 @@ sub FindOption ($$$$$) {
 	    $opt = substr($opt,0,1);
             unshift (@$argv, $starter.$rest) if defined $rest;
 	}
-	warn ("Unknown option: ", $opt, "\n");
+	if ( $opt eq "" ) {
+	    warn ("Missing option after ", $starter, "\n");
+	}
+	else {
+	    warn ("Unknown option: ", $opt, "\n");
+	}
 	$error++;
 	return (1, undef);
     }
@@ -2591,7 +2596,7 @@ This can be accomplished with a destination routine:
   GetOptions('list=s%' =>
                sub { push(@{$list{$_[1]}}, $_[2]) });
 
-=head1 Trouble Shooting
+=head1 Troubleshooting
 
 =head2 GetOptions does not return a false result when an option is not supplied
 

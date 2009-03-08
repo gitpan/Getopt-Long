@@ -4,6 +4,12 @@ Changes in version 2.38
 * Bugfix for Ticket 35759: First arg to callback function evaluates
   to false when used in bool context.
 
+* Fix problem with prototypes of GetOptionsFrom* functions.
+
+* Fix restoring default die handler.
+
+* Bugfix for Ticket 24941: Autoabbrev with + incorrect.
+
 Changes in version 2.37
 -----------------------
 
