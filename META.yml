@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Getopt-Long
-version:      2.37_03
+version:      2.38
 version_from: 
 installdirs:  perl
 requires:
