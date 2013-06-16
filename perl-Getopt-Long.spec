@@ -1,5 +1,5 @@
 %define modname Getopt-Long
-%define modversion 2.39
+%define modversion 2.40
 %define path   Getopt
 
 Name: perl-%{modname}
